@@ -1,1 +1,3 @@
 ### Recero App
+
+Instalar nodeJS.
