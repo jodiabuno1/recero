@@ -13,34 +13,35 @@
 				aria-describedby="emailHelp"
 			/>
 		</div>
-    <div class="mb-3">
-      <lable for="name" class="form-label">Nombre</lable>
-      <input type="text" class="form-control" id="name"/>
-    </div>
-    <div class="mb-3">
-      <lable for="first-name" class="form-label">Apellido Paterno</lable>
-      <input type="text" class="form-control"/>
-    </div>
-    <div class="mb-3">
-      <lable for="other-name" class="form-label">Apellido Materno</lable>
-      <input type="text" class="form-control"/>
-    </div>
-    <div class="mb-3">
-      <lable for="phone" class="form-label">Teléfono</lable>
-      <input type="phone" class="form-control" id="phone"/>
-    </div>
-    <div class="mb-3">
-      <lable for="direction" class="form-label">Dirección</lable>
-      <input type="text" class="form-control" id="direction"/>
-    </div>
-    <div class="mb-3">
-      <lable for="born-date" class="form-label">Fecha de nacimiento</lable>
-      <input type="date" class="form-control" id="born-date"/>
-    </div>
-    <div class="mb-3">
-      <lable for="email" class="form-label">Correo</lable>
-      <input type="email" class="form-control" id="email"/>
-    </div>
+		<div class="mb-3">
+			<lable for="name" class="form-label">Nombre</lable>
+			<input type="text" class="form-control" id="name" />
+		</div>
+		<div class="mb-3">
+			<lable for="first-name" class="form-label">Apellido Paterno</lable>
+			<input type="text" class="form-control" />
+		</div>
+		<div class="mb-3">
+			<lable for="other-name" class="form-label">Apellido Materno</lable>
+			<input type="text" class="form-control" />
+		</div>
+		<div class="mb-3">
+			<lable for="direction" class="form-label">Dirección</lable>
+			<select class="form-select" aria-label="Default select example" id="direction">
+				<option selected>Comuna</option>
+        {{#each counties}}
+          <option value="{{this.id}}">{{this.name}}</option> 
+        {{/each }}
+			</select>
+		</div>
+		<div class="mb-3">
+			<lable for="born-date" class="form-label">Fecha de nacimiento</lable>
+			<input type="date" class="form-control" id="born-date" />
+		</div>
+		<div class="mb-3">
+			<lable for="email" class="form-label">Correo</lable>
+			<input type="email" class="form-control" id="email" />
+		</div>
 		<div class="mb-3">
 			<label for="password" class="form-label">Contraseña</label>
 			<input type="password" class="form-control" id="password" />
@@ -49,8 +50,76 @@
 			<label for="repeat-password" class="form-label">Repita contraseña</label>
 			<input type="password" class="form-control" id="repeat-password" />
 		</div>
-    <div class="text-center">
-		  <button type="submit" class="btn btn-primary">Registrarse</button>
-    </div>
+		<div class="text-center">
+			<button type="submit" class="btn btn-primary">Registrarse</button>
+		</div>
 	</form>
 </div>
+<div class="alert alert-danger d-none" role="alert" id="alert-failed">
+  <p class="text-center">Debe completar todos los campos</p>
+</div>
+<div class="alert alert-success d-none" role="alert" id="alert">
+  <p class="text-center">Registro completado exitosamente, ingrese a su correo para confirmar registro</p>
+</div>
+<script>
+  const form = document.querySelector("form")
+  const input = document.querySelectorAll("input")
+  const select = document.querySelector("select")
+  const alertMessage = document.querySelector("#alert")
+	const alertFailed = document.querySelector("#alert-failed")
+
+  form.addEventListener("submit",async(e)=>{
+    e.preventDefault()
+    const [
+      Rut_Num_Usuario,
+      Nombres_Usuario,
+      Apellido_Paterno, 
+      Apellido_Materno,
+      Fecha_Nacimiento,
+      Correo_Usuario,
+      Contrasena_Perfil,
+      Contrasena_valid
+      ] = [...input].map((({value}) => value))
+    const Id_Direccion = select.value
+    const validation = [
+      Rut_Num_Usuario,
+      Nombres_Usuario,
+      Apellido_Paterno, 
+      Apellido_Materno,
+      Fecha_Nacimiento,
+      Correo_Usuario,
+      Contrasena_Perfil,
+      Contrasena_valid
+      ].every(inputElement => inputElement)
+    try{
+      if(!validation || !Id_Direccion ){
+        throw new Error("Debe completar todos los campos")
+      }
+      if(Contrasena_Perfil !== Contrasena_valid){
+        throw new Error("Contraseñas no coinciden")
+      }
+      const {data} = await axios.post("/register",{
+        Rut_Num_Usuario,
+        Nombres_Usuario,
+        Apellido_Paterno,
+        Apellido_Materno,
+        Id_Direccion: +Id_Direccion,
+        Fecha_Nacimiento,
+        Correo_Usuario,
+        Contrasena_Perfil,
+      })
+      alertMessage.classList.remove("d-none")
+      setTimeout(()=>{
+        alertMessage.classList.add("d-none")
+      },4000)
+    }catch(e){
+      alertFailed.classList.remove("d-none")
+      console.error(e)
+      setTimeout(()=>{
+        alertFailed.classList.add("d-none")
+      },4000)
+    }
+  })
+
+
+</script>

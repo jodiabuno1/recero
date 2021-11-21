@@ -74,8 +74,6 @@ CREATE TABLE `direccion` (
 -- Volcado de datos para la tabla `direccion`
 --
 
-INSERT INTO `direccion` (`Id_Direccion`, `Id_Comuna`) VALUES
-(1, 1);
 
 -- --------------------------------------------------------
 
@@ -176,8 +174,7 @@ CREATE TABLE `perfil` (
   `Is_Valid` tinyint(1) NOT NULL,
   `Fecha_Creacion` varchar(255) NOT NULL,
   `Contrasena_Perfil` varchar(255) NOT NULL,
-  `skills` varchar(255) NOT NULL,
-  `educacion` varchar(255) NOT NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -185,7 +182,7 @@ CREATE TABLE `perfil` (
 --
 
 INSERT INTO `perfil` (`Id_Perfil`, `Descripcion_Perfil`, `Rut_Num_Usuario`, `Is_Valid`, `Fecha_Creacion`, `Contrasena_Perfil`, `skills`, `educacion`) VALUES
-(1, 'Mi nombre es Franco Delpin, soy un Analista Programador Computacional con más de 7 años de experiencia en desarrollo Backend y FrontEnd. \r\n\r\nAnteriormente estudiante de Ingeniería Informática. \r\n', '182787752', 1, '2021-27-10', '9a5669df596c2c8dedec34c39b09555686881227', 'JavaScript - JavaEE - PHP - .NET - C# - Linux - Oracle - SOAP - REST', 'DuocUC Viña Del Mar - Ingeniería Informatica - Analista Programador Computacional');
+(1, 'Mi nombre es Franco Delpin, soy un Analista Programador Computacional con más de 7 años de experiencia en desarrollo Backend y FrontEnd. \r\n\r\nAnteriormente estudiante de Ingeniería Informática. \r\n', '182787752', 1, '2021-27-10', '9a5669df596c2c8dedec34c39b09555686881227');
 
 -- --------------------------------------------------------
 
@@ -285,8 +282,6 @@ CREATE TABLE `usuario` (
   `Id_Direccion` int(11) NOT NULL,
   `Fecha_Nacimiento` varchar(255) NOT NULL,
   `Correo_Usuario` varchar(255) NOT NULL,
-  `Cargo` varchar(255) NOT NULL,
-  `Is_Empresa` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
