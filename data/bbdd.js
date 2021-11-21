@@ -80,3 +80,13 @@ export const enablePerfil = async (rut) => {
     console.log(error)
   }
 }
+
+export const getUserAndPassword = async(rut) => {
+  const query = "SELECT Rut_Num_Usuario, Contrasena_Perfil from perfil where Rut_Num_Usuario = ?"
+  try {
+    const result = await pool.query(query,rut)
+    return result[0]
+  } catch (error) {
+    console.log(error)
+  }
+}
