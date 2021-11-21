@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { engine } from "express-handlebars"; // metodo generador plantillas
 import registerRoute from "./routes/register.js";
 import accountsRoute from "./routes/accounts.js"
+import loginRoute from "./routes/login.js"
+
 dotenv.config(); // permite usar constantes de .env
 const puertoServidor = process.env.PORT_SERVER; // constante de puerto de .env
 
@@ -45,8 +47,6 @@ app.get("/", (req, res) => {
 		],
 	});
 });
-app.get("/login", (req, res) => {
-	res.render("Login");
-});
+app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/accounts",accountsRoute);

@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 
-export const comparePassword = () => {
-  
-}
+const comparePassword = async(myPlaintextPassword, hash) => {
+	return bcrypt.compare(myPlaintextPassword, hash);
+};
+
+export default comparePassword;
