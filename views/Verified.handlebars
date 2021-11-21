@@ -1,0 +1,19 @@
+<div class="d-flex justify-content-center align-items-center vh-100">
+  {{#if verified}}
+    <div class="alert alert-primary" role="alert">
+      Su cuenta ha sido verificada
+    </div>
+  {{else}}
+    <div class="alert alert-danger" role="alert">
+      No se pudo verificar la cuenta, intente más tarde
+    </div>
+  {{/if}}
+</div>
+<script>
+  console.log("asdf")
+    console.log("init")
+    setTimeout(()=>{
+      console.log("redirect")
+      window.location.replace("/login")
+    },5000)
+</script>
