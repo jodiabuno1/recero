@@ -70,3 +70,13 @@ export const verifyKeyPerfil = async (data) => {
     console.log(error)
   }
 }
+
+export const enablePerfil = async (rut) => {
+  const query = "UPDATE perfil SET Is_Valid = 1 where Rut_Num_Usuario = ?"
+  try {
+    const result = pool.query(query,rut)
+    return result
+  } catch (error) {
+    console.log(error)
+  }
+}

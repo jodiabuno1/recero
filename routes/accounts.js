@@ -1,8 +1,5 @@
 import express from "express";
-import { createUser, getCounties, getKeyPassPerfil, verifyKeyPerfil } from "../data/bbdd.js";
-import hashPassword from "../utils/hashPassword.js";
-import { sendMail } from "../utils/mailer.js";
-import signToken from "../utils/signToken.js";
+import { verifyKeyPerfil, enablePerfil } from "../data/bbdd.js";
 import verifyToken from "../utils/verifyToken.js"
 const router = express.Router();
 
@@ -23,6 +20,7 @@ router.get("/verify",async(req,res)=>{
         console.log("Wrong Credentials")
         throw new Error("Wrong Credentials")
       }
+      await enablePerfil(isVerifyAccount.Rut_Num_Usuario)
       res.render("Verified",{
         verified: true
       })
