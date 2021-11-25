@@ -98,6 +98,12 @@
       if(Contrasena_Perfil !== Contrasena_valid){
         throw new Error("Contraseñas no coinciden")
       }
+      const {data: isAdult} = await axios.post("/age",{
+        Fecha_Nacimiento
+      })
+      if(!isAdult){
+        throw new Error("Debes ser mayor de edad para registrarte")
+      }
       const {data} = await axios.post("/register",{
         Rut_Num_Usuario,
         Nombres_Usuario,
@@ -113,13 +119,21 @@
         alertMessage.classList.add("d-none")
       },4000)
     }catch(e){
+      alertFailed.textContent = ""
+      alertFailed.insertAdjacentHTML("beforeend", `<p class="text-center">${e.response? e.response.data : e.message}</p>`)  
       alertFailed.classList.remove("d-none")
-      console.error(e)
       setTimeout(()=>{
         alertFailed.classList.add("d-none")
       },4000)
     }
   })
 
+/* const validarRut = (rut) => {
+  try{
+    const [body,verif] = rut.split("-");
+  }catch(e){
+    console.log(e)
+  }
+} */
 
 </script>
