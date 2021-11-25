@@ -32,13 +32,13 @@ export const createUser = async (dataValues) => {
   console.log("createUser",newData)
   const queryCreateUser = `INSERT INTO usuario values ?`
   const queryPerfil = "INSERT INTO perfil values (?)"
-  const QueryIdMaxPerfil = "Select max(Id_Perfil) from perfil"
+  const queryIdMaxPerfil = "Select max(Id_Perfil) as max from perfil"
   try {
     await pool.query("start transaction")
     const data = await pool.query(queryCreateUser,[[newData]])
-    const idMaxPerfil = await pool.query(QueryIdMaxPerfil);
-    if(idMaxPerfil["max(Id_Perfil)"]){
-      await pool.query(queryPerfil,[[idMaxPerfil["max(Id_Perfil)"] + 1, "User", newData[0],0,getDate(),Contrasena_Perfil]])
+    const idMaxPerfil = await pool.query(queryIdMaxPerfil);
+    if(idMaxPerfil[0].max > 0){
+      await pool.query(queryPerfil,[[idMaxPerfil[0].max + 1, "User", newData[0],0,getDate(),Contrasena_Perfil]])
     }else {
       await pool.query(queryPerfil,[[1, "User", newData[0],0,`${getDate()}`,Contrasena_Perfil]])
     }
@@ -48,6 +48,8 @@ export const createUser = async (dataValues) => {
   } catch (error) {
     await pool.query("rollback")
     console.log(error)
+    const errorcillo = JSON.stringify({message: "Usuario ya existe", status:404})
+    throw new Error(errorcillo)
   }
 }
 
@@ -83,6 +85,16 @@ export const enablePerfil = async (rut) => {
 
 export const getUserAndPassword = async(rut) => {
   const query = "SELECT Rut_Num_Usuario, Contrasena_Perfil from perfil where Rut_Num_Usuario = ?"
+  try {
+    const result = await pool.query(query,rut)
+    return result[0]
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const getDataUser = async(rut) => {
+  const query = "SELECT * from usuario where Rut_Num_Usuario = ?"
   try {
     const result = await pool.query(query,rut)
     return result[0]

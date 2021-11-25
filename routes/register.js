@@ -25,19 +25,22 @@ router.post("/", async (req, res) => {
 	const data = req.body;
 	try {
 		data.Contrasena_Perfil = await hashPassword(data.Contrasena_Perfil);
-		const asdf = await createUser(data);
+		await createUser(data);
 		const [{ Rut_Num_Usuario, Contrasena_Perfil }] = await getKeyPassPerfil(
 			data.Rut_Num_Usuario
 		);
 		const token = signToken({ Rut_Num_Usuario, Contrasena_Perfil });
 		await sendMail(token, data.Correo_Usuario);
-		res.send({
-			dataRecieved: data,
-			dataSended: "enviaste correctamente, te mando un token",
-		});
+		res.send("Registro exitoso");
 	} catch (error) {
-		console.log("error", error);
-		res.status(500).send("Internal Error");
+		const messageRaw = error.message
+    const {message,status} = JSON.parse(messageRaw)
+    if(message && status){
+			console.log(message, status)
+      res.status(status).send(JSON.stringify(message))
+    }else{
+      res.status(500).send("Internal error");
+    }
 	}
 });
 export default router;

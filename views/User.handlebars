@@ -1,0 +1,87 @@
+<div class="d-flex justify-content-center align-items-center full-h" id="spinner">
+    <div class="spinner-border text-success " role="status" >
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="px-5">Loading...</p>
+</div>
+<div id="dashboard" class="full-h d-none">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Recero</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <p class="nav-link link-p active">Mi Historial</p>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link link-p" aria-current="page" onclick="showPerfilSection()">Perfil</a>
+        </li>
+        <li class="nav-item">
+          <p class="nav-link link-p" onclick="showRecyclerSection()">Reciclar</p>
+        </li>
+        <li class="nav-item">
+          <p class="nav-link link-p" onclick="closeConection()">Cerrar Sesión</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<section>
+
+</section>
+</div>
+<script>
+  const token = localStorage.getItem("token")
+  const dashboard = document.querySelector("#dashboard")
+  const spinner = document.querySelector("#spinner")
+  const sectionSpace = document.querySelector("section")
+  const userData = {}
+  const getDataWithAuth = async(tokenData) => {
+    try{
+    const {data} = await axios.get("/user/data",{
+      headers:{
+        Authorization: `Bearer ${token}`}
+      })
+    for(const d in data){
+      userData[d] = data[d]
+    }
+    console.log(userData)
+    historialSection(userData)
+    dashboard.classList.remove("d-none")
+    spinner.classList.add("d-none")
+    }catch(error){
+      // window.location.replace("/")
+      console.log(error)
+    }      
+  }
+  if(token){
+    getDataWithAuth(token)
+  }else {
+    window.location.replace("/")
+  }
+  const historialSection = (dataUser) => {
+         
+      sectionSpace.insertAdjacentHTML("beforeend",`<h1 class="text-center">Historial reciclados<h1>`)
+  
+  }
+  const perfilSection = (dataUser,element) => {
+    for(let data in dataUser){      
+      element.insertAdjacentHTML("beforeend",`<p>${dataUser[data]}<p>`)
+    }
+  }
+  const closeConection = () => {
+    localStorage.removeItem("token")
+    window.location.replace("/")
+  }
+  const showPerfilSection = () => {
+    sectionSpace.textContent = ""
+    perfilSection(userData,sectionSpace)
+  }
+  const showRecyclerSection = () => {
+    sectionSpace.textContent = ""
+    sectionSpace.insertAdjacentHTML("beforeend","<p>Recycler</p>")
+  }
+</script>
