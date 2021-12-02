@@ -2,12 +2,24 @@
   margin: 0px;
   padding: 0px;
   box-sizing: border-box;
+  color: #17202A;
 }
 
 .full-h {
   min-height: 100vh;
 }
-
+.fifth {
+  width: 20%;
+}
 .link-p {
   cursor: pointer;
+}
+
+.recero-primary{
+  color: white;
+  background-color: #2874A6;
+}
+.recero-secondary{
+  color: white;
+  background-color: #0ACCD6;
 }

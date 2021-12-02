@@ -1,5 +1,10 @@
 import express from "express";
-import { getDataUser, getUserAndPassword } from "../data/bbdd.js";
+import {
+	getDataUser,
+	getUserAndPassword,
+	getTypeWaste,
+	getContainer,
+} from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
 import verifyToken from "../utils/verifyToken.js";
 
@@ -10,8 +15,9 @@ router.use(function timeLog(req, res, next) {
 	next();
 });
 
-router.get("/", (req, res) => {
-	res.render("User");
+router.get("/", async (req, res) => {
+	const data = await getTypeWaste();
+	res.render("User", { data: JSON.stringify(data) });
 });
 router.get("/data", async (req, res) => {
 	const { authorization } = req.headers;
@@ -40,11 +46,12 @@ router.get("/data", async (req, res) => {
 			});
 			throw new Error(errorcillo);
 		}
-    const dataUser = await getDataUser(responseDatabase.Rut_Num_Usuario)
-		res.send(dataUser);
+		const dataUser = await getDataUser(responseDatabase.Rut_Num_Usuario);
+		const container = await getContainer(dataUser.Id_Contenedor);
+		res.send({data:dataUser,container: container});
 	} catch (error) {
 		console.log(error);
-		res.status(500).send("changos");
+		res.status(500).send("Internal Error");
 	}
 });
 
