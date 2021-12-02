@@ -1,8 +1,8 @@
 import express from "express";
 import {
-	verifyKeyPerfil,
-	enablePerfil,
+	isVerifiedAccount,
 	getUserAndPassword,
+  
 } from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
 import signToken from "../utils/signToken.js";
@@ -34,6 +34,11 @@ router.post("/verify", async (req, res) => {
       const errorcillo = JSON.stringify({message: "Usuario o contraseña erróneos", status:401})
 			throw new Error(errorcillo)
 		}
+    const {Is_Valid} = await isVerifiedAccount(Rut_Num_Usuario)
+    if(Is_Valid === 0){
+      const errorcillo = JSON.stringify({message: "Cuenta sin verificar", status:401})
+			throw new Error(errorcillo)
+    }
     const token = signToken({Rut_Num_Usuario,Contrasena_Perfil})
     if(!token){
       const errorcillo = JSON.stringify({message: "Internal Error", status: 500})

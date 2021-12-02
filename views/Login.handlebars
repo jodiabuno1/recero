@@ -63,10 +63,13 @@
         window.location.href = "/user"
       }
     }catch(error){
-      console.log(error)
+      alertFailed.textContent = ""
+      alertFailed.insertAdjacentHTML("beforeend", `<p class="text-center">${error.response.data}</p>`)  
       alertFailed.classList.remove("d-none")
       setTimeout(()=>{
         alertFailed.classList.add("d-none")
+        alertFailed.textContent = ""
+      alertFailed.insertAdjacentHTML("beforeend", `<p class="text-center">Usuario o contraseña no válidos</p>`)  
       },4000)
     }
 
