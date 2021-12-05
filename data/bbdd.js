@@ -46,17 +46,6 @@ export const createUser = async (dataValues) => {
     console.log("max container",idMaxCreateContainer[0].max + 1 ?? 1)    
     await pool.query(queryCreateUser,[[[...newData,idMaxCreateContainer[0].max + 1 ?? 1]]])
     await pool.query(queryPerfil,[[idMaxPerfil[0].max + 1 ?? 1, "User", newData[0],0,getDate(),Contrasena_Perfil]])
-    
-    // if(idMaxPerfil[0].max > 0){
-    //   await pool.query(queryPerfil,[[idMaxPerfil[0].max + 1, "User", newData[0],0,getDate(),Contrasena_Perfil]])
-    // }else {
-    //   await pool.query(queryPerfil,[[1, "User", newData[0],0,`${getDate()}`,Contrasena_Perfil]])
-    // }
-    // if(idMaxCreateContainer[0].max > 0){
-    //   await pool.query(queryCreateContainer,[[idMaxCreateContainer[0].max,50,1,0,0,0,0,0]])
-    // }else{
-    //   await pool.query(queryCreateContainer,[[1, 50,1,0,0,0,0,0]])
-    // }
     await pool.query("commit")
     console.log("USER CREATED!")
     return data
@@ -99,7 +88,7 @@ export const enablePerfil = async (rut) => {
 } //habilita cuenta
 
 export const getUserAndPassword = async(rut) => {
-  const query = "SELECT Rut_Num_Usuario, Contrasena_Perfil from perfil where Rut_Num_Usuario = ?"
+  const query = "SELECT Rut_Num_Usuario, Contrasena_Perfil, Descripcion_Perfil from perfil where Rut_Num_Usuario = ?"
   try {
     const result = await pool.query(query,rut)
     return result[0]
@@ -144,5 +133,87 @@ export const getContainer = async(id) => {
     return result[0]
   } catch (error) {
     console.log(error)
+  }
+}
+
+export const getAllContainers = async() => {
+  try {
+    const result = await pool.query("SELECT * FROM contenedor")
+    return result
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+//CRUD RUTAS
+export const getAllRoutes = async() => {
+  try {
+    const result = await pool.query("SELECT * FROM ruta_solicitada where fecha > now()")
+    return result
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const createRoute = async(fecha) => {
+  const queryIdMaxRoute = "Select max(Id_Ruta) as max from ruta_solicitada"
+  const queryCreateRoute = "INSERT INTO ruta_solicitada values (?)"
+  try {
+    await pool.query("start transaction")
+    const idMaxRoute = await pool.query(queryIdMaxRoute);
+    await pool.query(queryCreateRoute,[[idMaxRoute[0].max + 1 ?? 1,"",fecha,0,1]])
+    await pool.query("commit")
+    return true
+  } catch (error) {
+    await pool.query("rollback")
+    const errorcillo = JSON.stringify({
+      message: "Ese día ya tiene una ruta, no se puede repetir",
+      status: 400,
+    });
+    throw new Error(errorcillo);
+  }
+}
+
+export const updateIdWorkerRoute = async(dataValues) => {
+  const queryUpdateId = "UPDATE ruta_solicitada set Id_Trabajador = ? where Id_Ruta = ?"
+  const newData = Object.values(dataValues)
+  try {
+    await pool.query("start transaction")
+    await pool.query(queryUpdateId,newData)
+    await pool.query("commit")
+    return true
+  } catch (error) {
+    console.log(error)
+    await pool.query("rollback")
+    return false
+  }
+}
+
+export const getAllWorkers = async() => {
+  try {
+    const result = await pool.query("SELECT * FROM trabajador where Id_Trabajador != 0")
+    return result
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const addWorker = async(data)=>{
+  const {nombre,apellido,rut}=data
+  const queryMaxIdWorker = "Select max(Id_Trabajador) as max from trabajador"
+  const queryAddWorker = "INSERT INTO trabajador values (?)"
+  try {
+    await pool.query("start transaction")
+    const idMaxIdWorker = await pool.query(queryMaxIdWorker);
+    await pool.query(queryAddWorker,[[idMaxIdWorker[0].max + 1 ?? 1,nombre,apellido,rut]])
+    await pool.query("commit")
+    return true
+  } catch (error) {
+    await pool.query("rollback")
+    console.log(error)
+    const errorcillo = JSON.stringify({
+      message: "Ingrese parámetros correctos",
+      status: 400,
+    });
+    throw new Error(errorcillo);
   }
 }

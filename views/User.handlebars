@@ -46,22 +46,30 @@
   const containerData = {}
   const getDataWithAuth = async(tokenData) => {
     try{
-    const {data} = await axios.get("/user/data",{
+    const resp = await axios.get("/user/data",{
       headers:{
         Authorization: `Bearer ${token}`}
       })
-    for(const d in data.data){
-      userData[d] = data.data[d]
-    }
-    for(const d in data.container){
-      containerData[d] = data.container[d]
-    }
+    /*if(data.isAdmin === 1){
+      window.location.href = "/admin"
+    } */
+    if(resp.headers["content-type"] === "text/html; charset=utf-8"){
+      window.location.href = "/admin"
+    }else{
+      for(const d in resp.data){
+        userData[d] = resp.data[d]
+      }
+      for(const d in resp.container){
+        containerData[d] = resp.container[d]
+      }
     showHistorialSection()
     dashboard.classList.remove("d-none")
     spinner.classList.add("d-none")
+    }
     }catch(error){
-      localStorage.removeItem("token")
-      window.location.replace("/")
+      
+      /*localStorage.removeItem("token")
+      window.location.replace("/")*/
       console.log(error)
     }      
   }

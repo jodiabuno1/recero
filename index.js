@@ -6,6 +6,8 @@ import accountsRoute from "./routes/accounts.js"
 import loginRoute from "./routes/login.js"
 import usersRoutes from "./routes/users.js"
 import ageRoutes from "./routes/age.js"
+import adminRoute from "./routes/admin.js"
+import routesTrucks from "./routes/routeTruck.js"
 
 dotenv.config(); // permite usar constantes de .env
 const puertoServidor = process.env.PORT_SERVER; // constante de puerto de .env
@@ -54,3 +56,5 @@ app.use("/register", registerRoute);
 app.use("/accounts",accountsRoute);
 app.use("/user", usersRoutes)
 app.use("/age",ageRoutes)
+app.use("/admin",adminRoute)
+app.use("/routes",routesTrucks)

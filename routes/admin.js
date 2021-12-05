@@ -1,9 +1,9 @@
 import express from "express";
 import {
-	getDataUser,
+	getAllRoutes,
 	getUserAndPassword,
-	getTypeWaste,
-	getContainer,
+	getAllContainers,
+	getAllWorkers
 } from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
 import verifyToken from "../utils/verifyToken.js";
@@ -16,8 +16,7 @@ router.use(function timeLog(req, res, next) {
 });
 
 router.get("/", async (req, res) => {
-	const data = await getTypeWaste();
-	res.render("User", { data: JSON.stringify(data) });
+	res.render("Admin");
 });
 router.get("/data", async (req, res) => {
 	const { authorization } = req.headers;
@@ -47,20 +46,13 @@ router.get("/data", async (req, res) => {
 			});
 			throw new Error(errorcillo);
 		}
-		const dataUser = await getDataUser(responseDatabase.Rut_Num_Usuario);
-		const container = await getContainer(dataUser.Id_Contenedor);
-		if(responseDatabase.Descripcion_Perfil === "Admin"){
-			//res.send({ data: dataUser, container: container, isAdmin:1 });
-			//res.status(307).send()
-			//res.writeHead(301)
-			//res.setHeader("Content-Type", "text/html")
-			// res.location("../admin")
-			res.redirect(301,"../admin")
-			return
-		}else{
-			console.log(dataUser,container)
-			res.send({ data: dataUser, container: container, isAdmin:0 });
-		}		
+		if(responseDatabase.Descripcion_Perfil === "User"){
+			res.redirect("/..user")
+		}
+		const routes = await getAllRoutes();
+		const workers = await getAllWorkers();
+		const containers = await getAllContainers()
+		res.send({ routes, workers, containers });
 	} catch (error) {
 		console.log(error);
 		res.status(500).send("Internal Error");
