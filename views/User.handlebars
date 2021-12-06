@@ -36,7 +36,7 @@
 </section>
 </div>
 <script>
-  const typeWaste = JSON.parse('{{{data}}}')
+  const typeWaste = JSON.parse(JSON.stringify({{{data}}}))
   const linkP = document.querySelectorAll(".link-p")
   const token = localStorage.getItem("token")
   const dashboard = document.querySelector("#dashboard")
@@ -44,6 +44,8 @@
   const sectionSpace = document.querySelector("section")
   const userData = {}
   const containerData = {}
+  let formRemoveWastes;
+  let rutaId = 0
   const getDataWithAuth = async(tokenData) => {
     try{
     const resp = await axios.get("/user/data",{
@@ -56,11 +58,11 @@
     if(resp.headers["content-type"] === "text/html; charset=utf-8"){
       window.location.href = "/admin"
     }else{
-      for(const d in resp.data){
-        userData[d] = resp.data[d]
+      for(const d in resp.data.data){
+        userData[d] = resp.data.data[d]
       }
-      for(const d in resp.container){
-        containerData[d] = resp.container[d]
+      for(const d in resp.data.container){
+        containerData[d] = resp.data.container[d]
       }
     showHistorialSection()
     dashboard.classList.remove("d-none")
@@ -140,44 +142,165 @@
       e.classList.add("active")    }
     sectionSpace.textContent = ""
     sectionSpace.insertAdjacentHTML("beforeend",formCreate())
+
+    formRemoveWastes = document.querySelector("#form-remove-wastes")
+    formRemoveWastes.addEventListener("submit",async(e)=>{
+    e.preventDefault()
+    const inputsWeight = document.querySelectorAll(".input-weight")
+    const otherData = document.querySelectorAll(".input-remove")
+    const [vidrio,papel,carton,plastico,residuo_tecnologico,fecha,Id_Direccion,lugar_retiro] = [...inputsWeight,...otherData].map(input => input.value)
+    const {Id_Contenedor,Rut_Num_Usuario} = userData
+    const isNotEmpty = verifyNotFalsy(vidrio,papel,carton,plastico,residuo_tecnologico,rutaId,Id_Direccion,lugar_retiro,Id_Contenedor,Rut_Num_Usuario)
+    console.log("ruta:", rutaId)
+    const isZeroWastes = [vidrio,papel,carton,plastico,residuo_tecnologico].every(waste => waste == 0)
+    try{
+      if(!isNotEmpty && rutaId < 1){
+        throw new Error("incompleto el formulario")
+      }
+      if(isZeroWastes){
+        throw new Error("Debe ingresar valores de cantidad de residuos a retirar")
+      }
+      const data = await axios.post("/removes",{
+        vidrio,papel,carton,plastico,residuo_tecnologico,Id_Ruta: rutaId,Id_Direccion,lugar_retiro,Id_Contenedor,Rut_Num_Usuario,
+      },{
+            headers:{
+              Authorization: `Bearer ${token}`
+              }
+          })
+      alert("solicitud realizada")
+      window.location.reload()
+      console.log("éxito")
+    }catch(error){
+      alert(error)
+      console.log("fallo",error)
+    }
+  })
+
   }
-  // hasta aca
+  const verifyNotFalsy = (...rest) => {
+    return rest.every(r => r)
+  }
   
   const formCreate = ()=> {
+    const orderedValues = typeWaste.sort((a,b)=> {
+      if (a.name < b.name) {
+    return -1;
+  }
+  if (a.name > b.name) {
+    return 1;
+  }
+  return 0;
+    })
+    const options = orderedValues.reduce((acc,it)=> acc + `<option value="${it.id}">${it.name}</option>`,"")
       return `
   <div class="container mx-auto">
     <h1 class="text-center mb-5">Solicitar retiro de residuos</h1>
-    <form class="w-50 mx-auto">
+    <form class="w-50 mx-auto" id="form-remove-wastes">
       <div class="mb-3">
         <label>Fecha Solicitud</label>
-        <input class="form-control" type="date" />
+        <input class="form-control input-remove"  type="date" onchange="verifyRoutesEnabled(this)"/>
       </div>
       <div class="mb-3">
-        <label>Vidrio</label>
-        <input class="form-control" type="number" />
+			<lable for="direction" class="form-label">Comuna</lable>
+			<select class="form-select input-remove" aria-label="Default select example" id="direction" onchange="selectCounty(this)">
+				<option value="0" selected>Comuna</option>
+        ${options}
+			</select>
+		</div>
+      <div class="mb-3">
+			<lable class="form-label">Dirección Retiro</lable>
+			<input class="form-control input-remove" type="text" placeholder="Indique la dirección del lugar a retirar"/>
+		</div>
+      <div class="mb-3">
+        <label >Vidrio <span class="label-weight"></span></label>
+        <input onchange="changeAmountWaste(this)" min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
       <div class="mb-3">
-        <label>Papel</label>
-        <input class="form-control" type="number" />
+        <label >Papel <span class="label-weight"></span></label>
+        <input onchange="changeAmountWaste(this)" min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
       <div class="mb-3">
-        <label>Cartón</label>
-        <input class="form-control" type="number" />
+        <label >Cartón <span class="label-weight"></span></label>
+        <input onchange="changeAmountWaste(this)" min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
       <div class="mb-3">
-        <label>Plástico</label>
-        <input class="form-control" type="number" />
+        <label >Plástico <span class="label-weight"></span> </label>
+        <input onchange="changeAmountWaste(this)" min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
       <div class="mb-3">
-        <label>Residuos tecnológicos</label>
-        <input class="form-control" type="number" />
+        <label >Residuos tecnológicos <span class="label-weight"></span></label>
+        <input min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
       <div class="mb-3">
-        <label>Total a reciclar</label>
-        <input class="form-control" type="number" />
+        <p>Total a reciclar: <span id="total">0</span></p>
+      </div>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary">Solicitar</button>
       </div>
     </form>
-  </div>
-  `
+  </div> `
+  
+    }
+
+    const verifyRoutesEnabled = async (e) => {
+      const {Rut_Num_Usuario} = userData
+      const fecha = e.value
+      try{
+        const data = await axios.post("/removes/verification",{
+            Rut_Num_Usuario,
+            fecha
+          },{
+            headers:{
+              Authorization: `Bearer ${token}`
+              }
+          })
+          rutaId = data.data
+        const weightEnable = await axios.post("/removes/waste",{
+            fecha
+          },{
+            headers:{
+              Authorization: `Bearer ${token}`
+              }
+          }
+        )
+        const weightArray = Object.values(weightEnable.data)
+        const inputsWeight = document.querySelectorAll(".input-weight")
+        const labelsWeight = document.querySelectorAll(".label-weight")
+        inputsWeight.forEach((input,i) => {
+          input.max = weightArray[i] > 50 ? 50 : weightArray[i]
+          labelsWeight[i].textContent = `(${input.max} Kg máximo)`
+          if(input.value > input.max){
+            input.value = input.max
+          }
+          if(input.max < 1){
+            input.disabled = true
+          }else{
+            input.disabled = false
+          }
+          console.log(input.max)
+        })  
+      }catch(error){
+        alert(error.response.data)
+        e.value = ""
+      }
+    }
+    const changeAmountWaste = (e) => {
+      if(e.value > e.max){
+        e.value = e.max
+      }
+      if(e.value < e.min){
+        e.value = e.min
+      }
+      const totalDiv = document.querySelector("#total")
+      const inputsWeight = document.querySelectorAll(".input-weight")
+      const total = [...inputsWeight].reduce((acc,it)=> acc + +it.value,0)
+      totalDiv.textContent = total ?? 0
+    }
+    const selectCounty = (e) => {
+      const countyValue = e.value
+      if(countyValue !== "13101"){
+        alert("Servicio disponible sólo para la comuna de Santiago")
+        e.value = "0"
+      }
     }
 </script>
