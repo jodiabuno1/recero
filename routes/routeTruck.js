@@ -5,7 +5,7 @@ import {
 	getAllRoutes,
 	addWorker,
 	getAllWorkers,
-	updateIdWorkerRoute
+	updateIdWorkerRoute,
 } from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
 import verifyToken from "../utils/verifyToken.js";
@@ -73,6 +73,7 @@ router.post("/", async (req, res) => {
     }
   }
 });
+
 router.get("/workers",async(req,res)=>{
 	const data = await getAllWorkers()
 	res.status(200).send(data)

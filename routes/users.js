@@ -2,7 +2,7 @@ import express from "express";
 import {
 	getDataUser,
 	getUserAndPassword,
-	getTypeWaste,
+	getCounties,
 	getContainer,
 } from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
@@ -16,7 +16,7 @@ router.use(function timeLog(req, res, next) {
 });
 
 router.get("/", async (req, res) => {
-	const data = await getTypeWaste();
+	const data = await getCounties();
 	res.render("User", { data: JSON.stringify(data) });
 });
 router.get("/data", async (req, res) => {

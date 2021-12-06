@@ -8,6 +8,6 @@ export const getDate = () => {
   if(month < 10){
     return `${year}-0${month}-${day}`
   }else{
-    return `${year}-${month}-${day}`
+    return `${year}-${month}-${day < 10 ? 0 : ""}${day}`
   }
 }

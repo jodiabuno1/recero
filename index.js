@@ -8,6 +8,7 @@ import usersRoutes from "./routes/users.js"
 import ageRoutes from "./routes/age.js"
 import adminRoute from "./routes/admin.js"
 import routesTrucks from "./routes/routeTruck.js"
+import removesRoute from "./routes/formRemoveWaste.js"
 
 dotenv.config(); // permite usar constantes de .env
 const puertoServidor = process.env.PORT_SERVER; // constante de puerto de .env
@@ -58,3 +59,4 @@ app.use("/user", usersRoutes)
 app.use("/age",ageRoutes)
 app.use("/admin",adminRoute)
 app.use("/routes",routesTrucks)
+app.use("/removes",removesRoute)
