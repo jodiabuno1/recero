@@ -88,11 +88,10 @@ router.post("/verification", async (req, res) => {
 		}
 		res.send(`${isEnableRoute}`);
 	} catch (error) {
-		console.log("el error",error)
+		console.log(error)
 		const messageRaw = error.message;
 		const { message, status } = JSON.parse(messageRaw);
 		if (message && status) {
-			console.log("Pasé por aqui")
 			console.log(message, status);
 			res.status(status).send(JSON.stringify(message));
 		} else {

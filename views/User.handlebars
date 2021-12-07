@@ -151,7 +151,6 @@
     const [vidrio,papel,carton,plastico,residuo_tecnologico,fecha,Id_Direccion,lugar_retiro] = [...inputsWeight,...otherData].map(input => input.value)
     const {Id_Contenedor,Rut_Num_Usuario} = userData
     const isNotEmpty = verifyNotFalsy(vidrio,papel,carton,plastico,residuo_tecnologico,rutaId,Id_Direccion,lugar_retiro,Id_Contenedor,Rut_Num_Usuario)
-    console.log("ruta:", rutaId)
     const isZeroWastes = [vidrio,papel,carton,plastico,residuo_tecnologico].every(waste => waste == 0)
     try{
       if(!isNotEmpty && rutaId < 1){
@@ -159,6 +158,9 @@
       }
       if(isZeroWastes){
         throw new Error("Debe ingresar valores de cantidad de residuos a retirar")
+      }
+      if(otherData[0] !== 13101){
+        throw new Error("Servicio disponible sólo para la comuna de Santiago")
       }
       const data = await axios.post("/removes",{
         vidrio,papel,carton,plastico,residuo_tecnologico,Id_Ruta: rutaId,Id_Direccion,lugar_retiro,Id_Contenedor,Rut_Num_Usuario,
@@ -172,7 +174,7 @@
       console.log("éxito")
     }catch(error){
       alert(error)
-      console.log("fallo",error)
+      console.log("falló solicitud",error)
     }
   })
 
@@ -231,9 +233,6 @@
         <label >Residuos tecnológicos <span class="label-weight"></span></label>
         <input min="0" value="0" max="50" class="form-control input-weight" type="number" />
       </div>
-      <div class="mb-3">
-        <p>Total a reciclar: <span id="total">0</span></p>
-      </div>
       <div class="text-center">
         <button type="submit" class="btn btn-primary">Solicitar</button>
       </div>
@@ -277,7 +276,6 @@
           }else{
             input.disabled = false
           }
-          console.log(input.max)
         })  
       }catch(error){
         alert(error.response.data)
@@ -291,10 +289,6 @@
       if(e.value < e.min){
         e.value = e.min
       }
-      const totalDiv = document.querySelector("#total")
-      const inputsWeight = document.querySelectorAll(".input-weight")
-      const total = [...inputsWeight].reduce((acc,it)=> acc + +it.value,0)
-      totalDiv.textContent = total ?? 0
     }
     const selectCounty = (e) => {
       const countyValue = e.value

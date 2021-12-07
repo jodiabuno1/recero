@@ -118,17 +118,18 @@ export const getUserAndPassword = async (rut) => {
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; // obtiene datos del perfil del usuario a consultar
 
 export const isVerifiedAccount = async (rut) => {
-	const query = "SELECT Is_Valid,Descripcion_Perfil from perfil where Rut_Num_Usuario = ?";
+	const query =
+		"SELECT Is_Valid,Descripcion_Perfil from perfil where Rut_Num_Usuario = ?";
 	try {
 		const result = await pool.query(query, rut);
 		return result[0];
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; // retorna si existe el registro con la cuenta verificada
 
 export const getDataUser = async (rut) => {
 	const query = "SELECT * from usuario where Rut_Num_Usuario = ?";
@@ -138,14 +139,14 @@ export const getDataUser = async (rut) => {
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; //obtiene datos del usuario según rut
 
 export const getTypeWaste = async () => {
 	try {
 		const result = await pool.query("SELECT * FROM residuos");
 		return result;
 	} catch (error) {}
-};
+}; //obtiene tipos de residuos
 
 export const getContainer = async (id) => {
 	try {
@@ -157,7 +158,7 @@ export const getContainer = async (id) => {
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; //obtiene datos del contenedor por id contenedor
 
 export const getAllContainers = async () => {
 	try {
@@ -166,9 +167,9 @@ export const getAllContainers = async () => {
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; //obtiene todos los contenedores
 
-//CRUD RUTAS
+
 export const getAllRoutes = async () => {
 	try {
 		const result = await pool.query(
@@ -178,7 +179,7 @@ export const getAllRoutes = async () => {
 	} catch (error) {
 		console.log(error);
 	}
-};
+}; //obtiene todas las rutas
 export const createRoute = async (fecha) => {
 	const queryIdMaxRoute = "Select max(Id_Ruta) as max from ruta_solicitada";
 	const queryCreateRoute = "INSERT INTO ruta_solicitada values (?)";
@@ -191,7 +192,7 @@ export const createRoute = async (fecha) => {
 		await pool.query("commit");
 		return true;
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 		await pool.query("rollback");
 		const errorcillo = JSON.stringify({
 			message: "Ese día ya tiene una ruta, no se puede repetir",
@@ -199,11 +200,11 @@ export const createRoute = async (fecha) => {
 		});
 		throw new Error(errorcillo);
 	}
-};
+}; //crea ruta
 
 export const updateIdWorkerRoute = async (dataValues) => {
 	const queryUpdateId =
-		"UPDATE ruta_solicitada set Id_Trabajador = ? where Id_Ruta = ?";
+		"UPDATE ruta_solicitada set Id_Perfil = ? where Id_Ruta = ?";
 	const newData = Object.values(dataValues);
 	try {
 		await pool.query("start transaction");
@@ -215,24 +216,25 @@ export const updateIdWorkerRoute = async (dataValues) => {
 		await pool.query("rollback");
 		return false;
 	}
-};
+}; //actualiza el id de trabajador en la ruta
 
 export const getAllWorkers = async () => {
 	try {
 		const result = await pool.query(
 			"SELECT t1.Nombres_Usuario,t1.Apellido_Paterno,t1.Rut_Num_Usuario,t2.Id_Perfil FROM usuario t1 inner join perfil t2 on t1.Rut_Num_Usuario = t2.Rut_Num_Usuario where t2.Descripcion_Perfil = 'Worker'"
 		);
-		console.log(result)
+		console.log(result);
 		return result;
 	} catch (error) {
 		console.log(error);
 	}
-};
-export const getWorker = async(id) => {
-	const query = "SELECT t1.Nombres_Usuario,t1.Apellido_Paterno,t1.Rut_Num_Usuario,t2.Id_Perfil FROM usuario t1 inner join perfil t2 on t1.Rut_Num_Usuario = t2.Rut_Num_Usuario where t2.Descripcion_Perfil = 'Worker' and t2.Id_Perfil = ?"
-	const result = await pool.query(query,[id])
-	return result[0]
-}
+}; //obtiene a todos los trabajadores
+export const getWorker = async (id) => {
+	const query =
+		"SELECT t1.Nombres_Usuario,t1.Apellido_Paterno,t1.Rut_Num_Usuario,t2.Id_Perfil FROM usuario t1 inner join perfil t2 on t1.Rut_Num_Usuario = t2.Rut_Num_Usuario where t2.Descripcion_Perfil = 'Worker' and t2.Id_Perfil = ?";
+	const result = await pool.query(query, [id]);
+	return result[0];
+}; // obtiene trabajador segun id
 export const addWorker = async (dataValues) => {
 	const { Contrasena_Perfil, ...data } = dataValues;
 	const newData = Object.values(data);
@@ -243,9 +245,7 @@ export const addWorker = async (dataValues) => {
 	try {
 		await pool.query("start transaction");
 		const idMaxPerfil = await pool.query(queryIdMaxPerfil);
-		await pool.query(queryCreateUser, [
-			[[...newData,1]],
-		]);
+		await pool.query(queryCreateUser, [[[...newData, 1]]]);
 		await pool.query(queryPerfil, [
 			[
 				idMaxPerfil[0].max + 1 ?? 1,
@@ -268,32 +268,13 @@ export const addWorker = async (dataValues) => {
 		});
 		throw new Error(errorcillo);
 	}
-	// const { nombre, apellido, rut, correo, Contrasena_Perfil } = data;
-	// const queryMaxIdWorker = "Select max(Id_Trabajador) as max from trabajador";
-	// const queryAddWorker = "INSERT INTO trabajador values (?)";
-	// try {
-	// 	await pool.query("start transaction");
-	// 	const idMaxIdWorker = await pool.query(queryMaxIdWorker);
-	// 	await pool.query(queryAddWorker, [
-	// 		[idMaxIdWorker[0].max + 1 ?? 1, nombre, apellido, rut],
-	// 	]);
-	// 	await pool.query("commit");
-	// 	return true;
-	// } catch (error) {
-	// 	await pool.query("rollback");
-	// 	console.log(error);
-	// 	const errorcillo = JSON.stringify({
-	// 		message: "Ingrese parámetros correctos",
-	// 		status: 400,
-	// 	});
-	// 	throw new Error(errorcillo);
-	// }
-};
-export const getEnabledRouteByWorker = async(id) => {
-	const queryRoutesWithDetails = "Select * from ruta_solicitada t1 inner join ficha_solicitud t2 on t1.Id_Ruta = t2.Id_Ruta where t1.fecha > now() and t1.Id_Trabajador = ?"
-	const result = await pool.query(queryRoutesWithDetails,[id])
-	return result
-}
+}; // agrega trabajador
+export const getEnabledRouteByWorker = async (id) => {
+	const queryRoutesWithDetails =
+		"Select * from ruta_solicitada t1 inner join ficha_solicitud t2 on t1.Id_Ruta = t2.Id_Ruta where t1.fecha > now() and t1.Id_Perfil = ?";
+	const result = await pool.query(queryRoutesWithDetails, [id]);
+	return result;
+}; // obtiene rutas según trabajador y de días posteriores al de hoy
 export const enableRoute = async (data) => {
 	const { fecha, Rut_Num_Usuario } = data;
 	const queryRouteEnable =
@@ -330,14 +311,14 @@ export const enableRoute = async (data) => {
 		throw new Error(errorcillo);
 	}
 	return result[0].Id_Ruta;
-};
+}; // habilita ruta
 
 export const getEnableWeight = async (date) => {
 	const queryCountRequest =
 		"Select sum(t1.vidrio) as vidrio, sum(t1.papel) as papel,  sum(t1.carton) as carton, sum(t1.plastico) as plastico, sum(t1.residuo_tecnologico) as residuo_tecnologico from ficha_solicitud t1 inner join ruta_solicitada t2 on t1.Id_Ruta = t2.Id_Ruta where t2.fecha = ?";
 	const result = await pool.query(queryCountRequest, [date]);
 	return result[0];
-};
+}; // obtiene pesos permitidos
 
 export const applyRemoveWastes = async (data) => {
 	const {
@@ -357,16 +338,38 @@ export const applyRemoveWastes = async (data) => {
 	const querySetFormRemove = "Insert into ficha_solicitud values (?)";
 	const queryAddToContainer =
 		"update contenedor set vidrio = vidrio + ?, papel = papel + ?, carton = carton + ?, plastico = plastico + ?, residuo_tecnologico = residuo_tecnologico + ? where Id_Contenedor = ?";
-  try {
-    await pool.query("start transaction")
-    const idMaxForm = await pool.query(queryMaxIdFormRemove)
-    await pool.query(querySetFormRemove,[[idMaxForm[0].max + 1 ?? 1, getDate(),Id_Direccion,Rut_Num_Usuario,0,Id_Ruta,vidrio,carton,papel,residuo_tecnologico,plastico,lugar_retiro]])
-    await pool.query(queryAddToContainer,[vidrio,papel,carton,plastico,residuo_tecnologico,Id_Contenedor])
-    await pool.query("commit")
-    return true
-  } catch (error) {
-    await pool.query("rollback")
-    console.log(error);
-    return false
-  }
-};
+	try {
+		await pool.query("start transaction");
+		const idMaxForm = await pool.query(queryMaxIdFormRemove);
+		await pool.query(querySetFormRemove, [
+			[
+				idMaxForm[0].max + 1 ?? 1,
+				getDate(),
+				Id_Direccion,
+				Rut_Num_Usuario,
+				0,
+				Id_Ruta,
+				vidrio,
+				carton,
+				papel,
+				residuo_tecnologico,
+				plastico,
+				lugar_retiro,
+			],
+		]);
+		await pool.query(queryAddToContainer, [
+			vidrio,
+			papel,
+			carton,
+			plastico,
+			residuo_tecnologico,
+			Id_Contenedor,
+		]);
+		await pool.query("commit");
+		return true;
+	} catch (error) {
+		await pool.query("rollback");
+		console.log(error);
+		return false;
+	}
+}; // crea formulario de solicitu

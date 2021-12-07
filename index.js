@@ -44,7 +44,7 @@ app.listen(puertoServidor, () =>
 	)
 );
 
-// ruta temporales
+// ruta estáticas
 app.get("/", (req, res) => {
 	res.render("Home", {
 		routes: [
@@ -61,6 +61,8 @@ app.get("/about",(req,res)=>{
 		],
 	})
 })
+
+// rutas
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/accounts",accountsRoute);

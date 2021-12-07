@@ -15,7 +15,7 @@ export const sendMail = async(token,email) => {
     from:  process.env.EMAIL,
     to: email ,
     subject: 'Verifica tu correo' ,
-    html: `<h1>Verifica tu Correo haciendo click <a href="http://localhost:3000/accounts/verify?token=${token}">Aquí</a></h1>` ,
+    html: `<h1>Verifica tu correo haciendo click <a href="http://localhost:3000/accounts/verify?token=${token}">Aquí</a></h1>` ,
     } //configuración correo
     try {      
       transporter.sendMail(mailOptions) //envía correo

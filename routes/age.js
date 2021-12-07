@@ -9,10 +9,10 @@ import utcToZonedTime from "date-fns-tz/utcToZonedTime/index.js";
 
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
+router.use((req, res, next) => {
 	next();
 });
-
+// ruta que verifica mayoría de edad para usuarios con rol usuarios
 router.post("/", (req, res) => {
 	const { Fecha_Nacimiento } = req.body;
 	const parseBirthDate = parseISO(Fecha_Nacimiento);

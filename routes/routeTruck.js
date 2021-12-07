@@ -14,6 +14,8 @@ import verifyToken from "../utils/verifyToken.js";
 const router = express.Router();
 
 router.use(async(req, res, next) => {
+	// middleware: si credenciales son correctas, se da permiso para acceder al
+	// resto de las rutas
 	const { authorization } = req.headers;
 	try {
 		const userToken = authorization.split(" ")[1] ?? false;
@@ -55,10 +57,12 @@ router.use(async(req, res, next) => {
 	}
 });
 router.get("/",async(req,res)=>{
+	// obtener todas las rutas
 	const routes = await getAllRoutes()
 	res.status(200).send(routes)
 })
 router.post("/", async (req, res) => {
+	//creación rutas
 	const {data} = req.body
   try {
     await createRoute(data)
@@ -76,10 +80,12 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/workers",async(req,res)=>{
+	//devuelve todos los trabajadores
 	const data = await getAllWorkers()
 	res.status(200).send(data)
 })
 router.post("/workers",async(req,res)=>{
+	// ruta permite el ingreso de recicladores
 	const data = req.body
 	try {
 		data.Contrasena_Perfil = await hashPassword(data.Contrasena_Perfil);
@@ -89,7 +95,7 @@ router.post("/workers",async(req,res)=>{
 			Apellido_Materno,
 			Correo_Usuario,
 			Contrasena_Perfil} = req.body
-		const createdUser = await addWorker({
+		await addWorker({
 				Rut_Num_Usuario,
         Nombres_Usuario,
         Apellido_Paterno,
@@ -120,7 +126,7 @@ router.patch("/",async(req,res)=>{
 		if(isAssignWorkerToRoute){
 			res.status(201).send("modificado correctamente")
 		}else{
-			res.status(400).send("fallo")
+			res.status(400).send("falló")
 		}
 	} catch (error) {
 		console.log(error)

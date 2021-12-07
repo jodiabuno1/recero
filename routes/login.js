@@ -9,8 +9,7 @@ import signToken from "../utils/signToken.js";
 
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 
@@ -19,6 +18,7 @@ router.get("/", (req, res) => {
 });
 
 router.post("/verify", async (req, res) => {
+  //verifica credenciales
 	try {
 		const { Rut_Num_Usuario, Contrasena_Perfil } = req.body;
 		const responseDatabase = await getUserAndPassword(
@@ -29,7 +29,6 @@ router.post("/verify", async (req, res) => {
       throw new Error(errorcillo)
     }
 		const isRightPass = await comparePassword(Contrasena_Perfil, responseDatabase.Contrasena_Perfil);
-		console.log(isRightPass)
     if (!isRightPass) {
       const errorcillo = JSON.stringify({message: "Usuario o contraseña erróneos", status:401})
 			throw new Error(errorcillo)
@@ -44,7 +43,6 @@ router.post("/verify", async (req, res) => {
       const errorcillo = JSON.stringify({message: "Internal Error", status: 500})
       throw new Error(errorcillo)
     }
-    console.log(Descripcion_Perfil)
 		res.send({token,Descripcion_Perfil});
 	} catch (error) {
     const messageRaw = error.message

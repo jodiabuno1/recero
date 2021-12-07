@@ -29,7 +29,6 @@
   const loginView = document.querySelector("#login-view")
   const spiner = document.querySelector("#spinner")
   const tokenLocalStorage = window.localStorage.getItem("token")
-  console.log(tokenLocalStorage)
   if(tokenLocalStorage){
     setTimeout(()=>{
       window.location.href = "/user"

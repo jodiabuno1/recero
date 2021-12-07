@@ -10,8 +10,7 @@ import verifyToken from "../utils/verifyToken.js";
 
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 
@@ -21,9 +20,10 @@ router.get("/", async (req, res) => {
 router.get("/data", async (req, res) => {
 	const { authorization } = req.headers;
 	try {
-		const userToken = authorization.split(" ")[1] ?? false;
+		// verificación credenciales
+		const userToken = authorization.split(" ")[1] ?? false; //extrae token
 		if (!userToken) {
-			throw new Error("no autorizado");
+			throw new Error("No autorizado");
 		}
 		const { Rut_Num_Usuario, Contrasena_Perfil } =
 			verifyToken(userToken);

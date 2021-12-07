@@ -3,20 +3,19 @@ import { verifyKeyPerfil, enablePerfil } from "../data/bbdd.js";
 import verifyToken from "../utils/verifyToken.js"
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 
 router.get("/verify",async(req,res)=>{
-  const {token} = req.query
+  const {token} = req.query //obtiene token de url
   try {
     
     const isVerifyAccount = verifyToken(token)
     if(isVerifyAccount){
       console.log("VERIFIED!")
-      const asdf = await verifyKeyPerfil(isVerifyAccount)
-      if(asdf === 0){
+      const isVerif = await verifyKeyPerfil(isVerifyAccount)
+      if(isVerif === 0){
         console.log("Wrong Credentials")
         throw new Error("Wrong Credentials")
       }

@@ -10,8 +10,7 @@ import verifyToken from "../utils/verifyToken.js";
 
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 
@@ -50,11 +49,6 @@ router.get("/data", async (req, res) => {
 		const dataUser = await getDataUser(responseDatabase.Rut_Num_Usuario);
 		const container = await getContainer(dataUser.Id_Contenedor);
 		if(responseDatabase.Descripcion_Perfil === "Admin"){
-			//res.send({ data: dataUser, container: container, isAdmin:1 });
-			//res.status(307).send()
-			//res.writeHead(301)
-			//res.setHeader("Content-Type", "text/html")
-			// res.location("../admin")
 			res.redirect(301,"../admin")
 			return
 		}else{

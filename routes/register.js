@@ -10,8 +10,7 @@ import signToken from "../utils/signToken.js";
 const router = express.Router();
 
 //middleware
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 

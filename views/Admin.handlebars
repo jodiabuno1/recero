@@ -56,7 +56,6 @@
     if(resp.headers["content-type"] === "text/html; charset=utf-8"){
       window.location.href = "/user"
     }else{
-      console.log("resp",resp)
       for(const d in resp.data.workers){
         workersData.push(resp.data.workers[d])
       }
@@ -72,8 +71,8 @@
     }
     }catch(error){      
       console.log(error)
-      /*localStorage.removeItem("token")
-      window.location.replace("/")*/
+      localStorage.removeItem("token")
+      window.location.replace("/")
     }      
   }
   if(token){
@@ -92,11 +91,11 @@
     },"") }</select>`
   }
   const setWorkerToRoute = async(e) =>{
-    console.log(e)
     const idWorker = +e.value
     const idRoute = +e.parentNode.parentNode.firstChild.nextSibling.textContent
     if(e.value == 0){
       alert("Asigne a un reciclador")
+      window.location.reload()
       return
     }
     try{
@@ -116,7 +115,6 @@
         <td>${dataUser[data].Id_Ruta}</td>
         <td>${getFormatDate( new Date( dataUser[data].fecha))}</td>
         <td>${optionsWorkers(dataUser[data].Id_Perfil)}</td>
-        <td>${dataUser[data].Is_Active}</td>
       </tr>`
     }
     let itemDataWorker = ""
@@ -137,7 +135,7 @@
             <h2 class="text-center">Crear Ruta</h2>
             <form id="form-route" >
               <div class="mb-3">
-			          <label for="dia" class="form-label">Seleccione dia para crear ruta</label>
+			          <label for="dia" class="form-label">Seleccione día para crear ruta</label>
                 <input
                   min="${min}"
                   max="${max}"
@@ -162,7 +160,6 @@
                 <th scope="col">Id</th>
                 <th scope="col">Fecha</th>
                 <th scope="col">Id trabajador</th>
-                <th scope="col">Habilitado</th>
               </tr>
             </thead>
             <tbody>
@@ -264,8 +261,7 @@
             <tr>
               <td>${item.Id_Ruta}</td>
               <td>${getFormatDate(new Date( item.fecha))}</td>
-              <td>${optionsWorkers(item.Id_Trabajador)}</td>
-              <td>${item.Is_Active}</td>
+              <td>${optionsWorkers(item.Id_Perfil)}</td>
             </tr>`
           },"")
           activeRoutesDiv.textContent = ""
@@ -276,7 +272,6 @@
                 <th scope="col">Id</th>
                 <th scope="col">Fecha</th>
                 <th scope="col">Id trabajador</th>
-                <th scope="col">Habilitado</th>
               </tr>
             </thead>
             <tbody>
@@ -339,10 +334,8 @@
               Authorization: `Bearer ${token}`
             }
           })
-          console.log(data)
           workersData.length = 0;
           data.forEach(d => workersData.push(d))
-          console.log("los workers")
           const tableDataWorkers = data.reduce((acc,item)=>{
             return acc += `
             <tr>
@@ -371,19 +364,17 @@
             headers:{
             Authorization: `Bearer ${token}`},
           })
-          console.log(dataRoutes)
           const tableData = dataRoutes.reduce((acc,item)=>{
             return acc += `
             <tr>
               <td>${item.Id_Ruta}</td>
               <td>${getFormatDate(new Date( item.fecha))}</td>
-              <td>${optionsWorkers(item.Id_Trabajador)}</td>
+              <td>${optionsWorkers(item.Id_Perfil)}</td>
               <td>${item.Is_Active}</td>
             </tr>`
           },"")
           const activeRoutesDiv = document.querySelector("#active-routes")
           activeRoutesDiv.textContent = ""
-          console.log(activeRoutesDiv)
           activeRoutesDiv.insertAdjacentHTML("beforeend",`
           <table class="table table-primary">
             <thead>
@@ -391,7 +382,6 @@
                 <th scope="col">Id</th>
                 <th scope="col">Fecha</th>
                 <th scope="col">Id trabajador</th>
-                <th scope="col">Habilitado</th>
               </tr>
             </thead>
             <tbody>
@@ -408,7 +398,6 @@
   const createRoute = (e) => {
     const form = document.querySelector("#form-route")
     form.preventDefault()
-    console.log(e)
   }
   const getDate = (mountDays = 3) => {
     const now = new Date()

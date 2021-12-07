@@ -9,8 +9,7 @@ import verifyToken from "../utils/verifyToken.js";
 
 const router = express.Router();
 
-router.use(function timeLog(req, res, next) {
-	console.log("Time: ", Date.now());
+router.use((req, res, next) => {
 	next();
 });
 
@@ -22,7 +21,7 @@ router.get("/data", async (req, res) => {
 	try {
 		const userToken = authorization.split(" ")[1] ?? false;
 		if (!userToken) {
-			throw new Error("no autorizado");
+			throw new Error("No autorizado");
 		}
 		const { Rut_Num_Usuario, Contrasena_Perfil } =
 			verifyToken(userToken);
@@ -47,7 +46,6 @@ router.get("/data", async (req, res) => {
 		}
 		const data = await getWorker(responseDatabase.Id_Perfil)
 		const routes = await getEnabledRouteByWorker(responseDatabase.Id_Perfil)
-		console.log(routes)
 		res.send({ routes,data, Descripcion_Perfil: responseDatabase.Descripcion_Perfil });
 	} catch (error) {
 		console.log(error);
