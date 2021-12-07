@@ -16,10 +16,15 @@
 }
 
 .recero-primary{
-  color: white;
+  color: rgb(248, 229, 229);
   background-color: #2874A6;
 }
 .recero-secondary{
-  color: white;
+  color: #17202A;
   background-color: #0ACCD6;
 }
+.recero-dark{
+  color: rgb(248, 229, 229);
+  background-color: #17202A;
+}
+

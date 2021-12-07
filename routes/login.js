@@ -34,7 +34,7 @@ router.post("/verify", async (req, res) => {
       const errorcillo = JSON.stringify({message: "Usuario o contraseña erróneos", status:401})
 			throw new Error(errorcillo)
 		}
-    const {Is_Valid} = await isVerifiedAccount(Rut_Num_Usuario)
+    const {Is_Valid,Descripcion_Perfil} = await isVerifiedAccount(Rut_Num_Usuario)
     if(Is_Valid === 0){
       const errorcillo = JSON.stringify({message: "Cuenta sin verificar", status:401})
 			throw new Error(errorcillo)
@@ -44,7 +44,8 @@ router.post("/verify", async (req, res) => {
       const errorcillo = JSON.stringify({message: "Internal Error", status: 500})
       throw new Error(errorcillo)
     }
-		res.send({token});
+    console.log(Descripcion_Perfil)
+		res.send({token,Descripcion_Perfil});
 	} catch (error) {
     const messageRaw = error.message
     const {message,status} = JSON.parse(messageRaw)

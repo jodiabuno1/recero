@@ -8,6 +8,7 @@ import {
 	updateIdWorkerRoute,
 } from "../data/bbdd.js";
 import comparePassword from "../utils/comparePassword.js";
+import hashPassword from "../utils/hashPassword.js";
 import verifyToken from "../utils/verifyToken.js";
 
 const router = express.Router();
@@ -79,11 +80,28 @@ router.get("/workers",async(req,res)=>{
 	res.status(200).send(data)
 })
 router.post("/workers",async(req,res)=>{
-	const {nombre,apellido,rut} = req.body
+	const data = req.body
 	try {
-		const createdUser = await addWorker({nombre,apellido,rut})
+		data.Contrasena_Perfil = await hashPassword(data.Contrasena_Perfil);
+		const {Rut_Num_Usuario,
+			Nombres_Usuario,
+			Apellido_Paterno,
+			Apellido_Materno,
+			Correo_Usuario,
+			Contrasena_Perfil} = req.body
+		const createdUser = await addWorker({
+				Rut_Num_Usuario,
+        Nombres_Usuario,
+        Apellido_Paterno,
+        Apellido_Materno,
+        Id_Direccion: 13121,
+        Fecha_Nacimiento: "01-01-2021",
+        Correo_Usuario,
+        Contrasena_Perfil,
+		})
 		res.status(201).send("Trabajador inscrito")
 	} catch (error) {
+		console.log(error)
 		const messageRaw = error.message
     const {message,status} = JSON.parse(messageRaw)
     if(message && status){

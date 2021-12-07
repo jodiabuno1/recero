@@ -111,7 +111,7 @@ export const enablePerfil = async (rut) => {
 
 export const getUserAndPassword = async (rut) => {
 	const query =
-		"SELECT Rut_Num_Usuario, Contrasena_Perfil, Descripcion_Perfil from perfil where Rut_Num_Usuario = ?";
+		"SELECT Id_Perfil,Rut_Num_Usuario, Contrasena_Perfil, Descripcion_Perfil from perfil where Rut_Num_Usuario = ?";
 	try {
 		const result = await pool.query(query, rut);
 		return result[0];
@@ -121,7 +121,7 @@ export const getUserAndPassword = async (rut) => {
 };
 
 export const isVerifiedAccount = async (rut) => {
-	const query = "SELECT Is_Valid from perfil where Rut_Num_Usuario = ?";
+	const query = "SELECT Is_Valid,Descripcion_Perfil from perfil where Rut_Num_Usuario = ?";
 	try {
 		const result = await pool.query(query, rut);
 		return result[0];
@@ -186,11 +186,12 @@ export const createRoute = async (fecha) => {
 		await pool.query("start transaction");
 		const idMaxRoute = await pool.query(queryIdMaxRoute);
 		await pool.query(queryCreateRoute, [
-			[idMaxRoute[0].max + 1 ?? 1, "", fecha, 0, 1],
+			[idMaxRoute[0].max + 1 ?? 1, "", fecha, 0, null],
 		]);
 		await pool.query("commit");
 		return true;
 	} catch (error) {
+		console.log(error)
 		await pool.query("rollback");
 		const errorcillo = JSON.stringify({
 			message: "Ese día ya tiene una ruta, no se puede repetir",
@@ -219,37 +220,80 @@ export const updateIdWorkerRoute = async (dataValues) => {
 export const getAllWorkers = async () => {
 	try {
 		const result = await pool.query(
-			"SELECT * FROM trabajador where Id_Trabajador != 0"
+			"SELECT t1.Nombres_Usuario,t1.Apellido_Paterno,t1.Rut_Num_Usuario,t2.Id_Perfil FROM usuario t1 inner join perfil t2 on t1.Rut_Num_Usuario = t2.Rut_Num_Usuario where t2.Descripcion_Perfil = 'Worker'"
 		);
+		console.log(result)
 		return result;
 	} catch (error) {
 		console.log(error);
 	}
 };
-
-export const addWorker = async (data) => {
-	const { nombre, apellido, rut } = data;
-	const queryMaxIdWorker = "Select max(Id_Trabajador) as max from trabajador";
-	const queryAddWorker = "INSERT INTO trabajador values (?)";
+export const getWorker = async(id) => {
+	const query = "SELECT t1.Nombres_Usuario,t1.Apellido_Paterno,t1.Rut_Num_Usuario,t2.Id_Perfil FROM usuario t1 inner join perfil t2 on t1.Rut_Num_Usuario = t2.Rut_Num_Usuario where t2.Descripcion_Perfil = 'Worker' and t2.Id_Perfil = ?"
+	const result = await pool.query(query,[id])
+	return result[0]
+}
+export const addWorker = async (dataValues) => {
+	const { Contrasena_Perfil, ...data } = dataValues;
+	const newData = Object.values(data);
+	const queryCreateUser = `INSERT INTO usuario values ?`;
+	const queryPerfil = "INSERT INTO perfil values (?)";
+	const queryIdMaxPerfil = "Select max(Id_Perfil) as max from perfil";
+	// create containers
 	try {
 		await pool.query("start transaction");
-		const idMaxIdWorker = await pool.query(queryMaxIdWorker);
-		await pool.query(queryAddWorker, [
-			[idMaxIdWorker[0].max + 1 ?? 1, nombre, apellido, rut],
+		const idMaxPerfil = await pool.query(queryIdMaxPerfil);
+		await pool.query(queryCreateUser, [
+			[[...newData,1]],
+		]);
+		await pool.query(queryPerfil, [
+			[
+				idMaxPerfil[0].max + 1 ?? 1,
+				"Worker",
+				newData[0],
+				1,
+				getDate(),
+				Contrasena_Perfil,
+			],
 		]);
 		await pool.query("commit");
-		return true;
+		console.log("USER CREATED!");
+		return data;
 	} catch (error) {
 		await pool.query("rollback");
 		console.log(error);
 		const errorcillo = JSON.stringify({
-			message: "Ingrese parámetros correctos",
-			status: 400,
+			message: "Usuario ya existe",
+			status: 404,
 		});
 		throw new Error(errorcillo);
 	}
+	// const { nombre, apellido, rut, correo, Contrasena_Perfil } = data;
+	// const queryMaxIdWorker = "Select max(Id_Trabajador) as max from trabajador";
+	// const queryAddWorker = "INSERT INTO trabajador values (?)";
+	// try {
+	// 	await pool.query("start transaction");
+	// 	const idMaxIdWorker = await pool.query(queryMaxIdWorker);
+	// 	await pool.query(queryAddWorker, [
+	// 		[idMaxIdWorker[0].max + 1 ?? 1, nombre, apellido, rut],
+	// 	]);
+	// 	await pool.query("commit");
+	// 	return true;
+	// } catch (error) {
+	// 	await pool.query("rollback");
+	// 	console.log(error);
+	// 	const errorcillo = JSON.stringify({
+	// 		message: "Ingrese parámetros correctos",
+	// 		status: 400,
+	// 	});
+	// 	throw new Error(errorcillo);
+	// }
 };
-
+export const getEnabledRouteByWorker = async(id) => {
+	const queryRoutesWithDetails = "Select * from ruta_solicitada t1 inner join ficha_solicitud t2 on t1.Id_Ruta = t2.Id_Ruta where t1.fecha > now() and t1.Id_Trabajador = ?"
+	const result = await pool.query(queryRoutesWithDetails,[id])
+	return result
+}
 export const enableRoute = async (data) => {
 	const { fecha, Rut_Num_Usuario } = data;
 	const queryRouteEnable =
@@ -325,5 +369,4 @@ export const applyRemoveWastes = async (data) => {
     console.log(error);
     return false
   }
-  return true
 };

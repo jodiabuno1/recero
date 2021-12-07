@@ -56,6 +56,7 @@
     if(resp.headers["content-type"] === "text/html; charset=utf-8"){
       window.location.href = "/user"
     }else{
+      console.log("resp",resp)
       for(const d in resp.data.workers){
         workersData.push(resp.data.workers[d])
       }
@@ -86,7 +87,7 @@
       return ""
     }
     return `<select value="${val}" onchange="setWorkerToRoute(this)"> <option value="0">Asigne trabajador </option> ${workersData.reduce((acc,it)=>{
-      acc += `<option ${it.Id_Trabajador == val ? "selected" : ""} value="${it.Id_Trabajador}">${it.rut}/${it.nombre} ${it.apellido}</option>`
+      acc += `<option ${it.Id_Perfil == val ? "selected" : ""} value="${it.Id_Perfil}">${it.Rut_Num_Usuario}/${it.Nombres_Usuario} ${it.Apellido_Paterno}</option>`
       return acc
     },"") }</select>`
   }
@@ -114,7 +115,7 @@
       <tr>
         <td>${dataUser[data].Id_Ruta}</td>
         <td>${getFormatDate( new Date( dataUser[data].fecha))}</td>
-        <td>${optionsWorkers(dataUser[data].Id_Trabajador)}</td>
+        <td>${optionsWorkers(dataUser[data].Id_Perfil)}</td>
         <td>${dataUser[data].Is_Active}</td>
       </tr>`
     }
@@ -122,19 +123,19 @@
     for(let data in otherData){     
       itemDataWorker += `
       <tr>
-        <td>${otherData[data].rut}</td>
-        <td>${otherData[data].nombre}</td>
-        <td>${otherData[data].apellido}</td>
+        <td>${otherData[data].Rut_Num_Usuario}</td>
+        <td>${otherData[data].Nombres_Usuario}</td>
+        <td>${otherData[data].Apellido_Paterno}</td>
       </tr>`
     }
     const {min,max} = getDate()
     element.insertAdjacentHTML("beforeend",`
       <h1 class="text-center pb-2">Panel</h1>
       <div class="px-5 row mx-auto">
-        <div class="col-6 bg-info">
-          <div>
+        <div class="col-6 card">
+          <div class="recero-secondary p-3">
             <h2 class="text-center">Crear Ruta</h2>
-            <form id="form-route">
+            <form id="form-route" >
               <div class="mb-3">
 			          <label for="dia" class="form-label">Seleccione dia para crear ruta</label>
                 <input
@@ -147,7 +148,7 @@
                 />
 		          </div>
               <div class="text-center">
-                <button type="submit" class="btn btn-primary">Crear</button>
+                <button type="submit" class="btn recero-primary">Crear</button>
               </div>
             </form>
           </div>
@@ -172,7 +173,7 @@
           </div>
         </div>
         <div class="col-2"></div>
-        <div class="col-4 bg-success">
+        <div class="col-4 recero-primary card">
           <div>
             <h2 class="text-center">Inscribir Reciclador</h2>
             <form id="form-add-worker">
@@ -190,11 +191,27 @@
                 <input type="text" class="form-control" id="name-worker" aria-describedby="emailHelp">
               </div>
               <div class="mb-3">
-                <label for="last-name-worker" class="form-label">Apellido</label>
+                <label for="last-name-worker" class="form-label">Apellido Paterno</label>
                 <input type="text" class="form-control" id="last-name-worker">
               </div>
+              <div class="mb-3">
+                <label for="last-name-worker" class="form-label">Apellido Materno</label>
+                <input type="text" class="form-control" id="other-name-worker">
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo</label>
+                <input type="email" class="form-control" id="email" />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="password" />
+              </div>
+              <div class="mb-3">
+                <label for="repeat-password" class="form-label">Repita contraseña</label>
+                <input type="password" class="form-control" id="repeat-password" />
+              </div>
               <div class="text-center">
-                <button type="submit" class="btn btn-primary">Inscribir</button>
+                <button type="submit" class="btn recero-secondary">Inscribir</button>
               </div>
             </form>
           </div>
@@ -219,7 +236,6 @@
         </div>
       </div>
       `)
-      // hasta acá
       formRoute=document.querySelector("#form-route")
       formRoute.addEventListener("submit",async(e)=>{
         const activeRoutesDiv = document.querySelector("#active-routes")
@@ -276,20 +292,43 @@
       })
       formWorker=document.querySelector("#form-add-worker")
       formWorker.addEventListener("submit",async(e)=>{
-        const apellido = document.querySelector("#last-name-worker").value
-        const nombre = document.querySelector("#name-worker").value
-        const rut = document.querySelector("#rut").value
+        const Apellido_Paterno = document.querySelector("#last-name-worker").value
+        const Apellido_Materno = document.querySelector("#other-name-worker").value
+        const Nombres_Usuario = document.querySelector("#name-worker").value
+        const Rut_Num_Usuario = document.querySelector("#rut").value
+        const Correo_Usuario = document.querySelector("#email").value
+        const Contrasena_Perfil = document.querySelector("#password").value
+        const Contrasena_Perfil_Repeat = document.querySelector("#repeat-password").value
         e.preventDefault()
-        const isNotEmpty = [apellido,nombre,rut].every((input) => input)
+        const isNotEmpty = [
+          Apellido_Materno,
+          Apellido_Paterno,
+          Nombres_Usuario,
+          Rut_Num_Usuario,
+          Correo_Usuario,
+          Contrasena_Perfil,
+          Contrasena_Perfil_Repeat
+          ].every((input) => input)
         if(!isNotEmpty){
           handleAlert("Debe llenar todos los campos",false)
           return false
         }
+        if(!validatePassword(Contrasena_Perfil)){
+          handleAlert("La contraseña debe tener entre 8 y 16 caracteres, al menos un dígito, al menos una minúscula, al menos una mayúscula y al menos un caracter no alfanumérico.",false)
+          return false
+        }
+        if(Contrasena_Perfil !== Contrasena_Perfil_Repeat){
+          handleAlert("Contraseña no coincide",false)
+          return false
+        }
         try{
           await axios.post("/routes/workers",{
-            nombre,
-            apellido,
-            rut
+            Correo_Usuario,
+            Nombres_Usuario,
+            Apellido_Paterno,
+            Apellido_Materno,
+            Rut_Num_Usuario,
+            Contrasena_Perfil
           },{
             headers: {
               Authorization: `Bearer ${token}`
@@ -303,13 +342,13 @@
           console.log(data)
           workersData.length = 0;
           data.forEach(d => workersData.push(d))
-          
+          console.log("los workers")
           const tableDataWorkers = data.reduce((acc,item)=>{
             return acc += `
             <tr>
-              <td>${item.rut}</td>
-              <td>${item.nombre}</td>
-              <td>${item.apellido}</td>
+              <td>${item.Rut_Num_Usuario}</td>
+              <td>${item.Nombres_Usuario}</td>
+              <td>${item.Apellido_Paterno}</td>
             </tr>`
           },"")
           const listWorker = document.querySelector("#list-worker")
@@ -525,5 +564,9 @@
     setTimeout(()=>{
       alertComponent.classList.add("d-none")
     },6000)
+  }
+  const validatePassword = (pass) => {
+    const regex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+    return regex.test(pass)
   }
 </script>
