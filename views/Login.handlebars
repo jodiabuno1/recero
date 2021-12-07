@@ -54,13 +54,19 @@
       return
     }
     try{
-      const {data: {token}} = await axios.post("/login/verify",{
+      const {data: {token,Descripcion_Perfil}} = await axios.post("/login/verify",{
         Rut_Num_Usuario:rut,
         Contrasena_Perfil:pass
       })
       if(token){
         localStorage.setItem("token",token)
-        window.location.href = "/user"
+        if(Descripcion_Perfil === "Admin"){
+          window.location.href = "/admin"
+        }else if(Descripcion_Perfil === "User"){
+          window.location.href = "/user"
+        }else{
+          window.location.href = "/workers"
+        }
       }
     }catch(error){
       alertFailed.textContent = ""

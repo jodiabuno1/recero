@@ -9,6 +9,7 @@ import ageRoutes from "./routes/age.js"
 import adminRoute from "./routes/admin.js"
 import routesTrucks from "./routes/routeTruck.js"
 import removesRoute from "./routes/formRemoveWaste.js"
+import workerRoute from "./routes/workers.js"
 
 dotenv.config(); // permite usar constantes de .env
 const puertoServidor = process.env.PORT_SERVER; // constante de puerto de .env
@@ -52,6 +53,14 @@ app.get("/", (req, res) => {
 		],
 	});
 });
+app.get("/about",(req,res)=>{
+	res.render("About",{
+		routes: [
+			{ link: "/", name: "Home" },
+			{ link: "/about", name: "nosotros" },
+		],
+	})
+})
 app.use("/login", loginRoute);
 app.use("/register", registerRoute);
 app.use("/accounts",accountsRoute);
@@ -60,3 +69,4 @@ app.use("/age",ageRoutes)
 app.use("/admin",adminRoute)
 app.use("/routes",routesTrucks)
 app.use("/removes",removesRoute)
+app.use("/workers",workerRoute)
